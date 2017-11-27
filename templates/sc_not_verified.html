@@ -1,0 +1,26 @@
+{% extends "sc_base.html" %}
+
+{% block title %}
+<title>User not verified</title>
+{% endblock %}
+
+{% block script %}
+
+
+{% endblock %}
+
+{% block content %}
+ 
+{% load staticfiles %}
+	<div id = "base">
+	<div id = "options">
+	<ul class = "opt">
+		<h1> {{user}} </h1>
+		<h2 id = "place"></h2>
+		<p>You account is not verified yet. You have to be a verified user to create contracts>
+		
+	</ul>
+    </div>
+	</div>
+ 
+{% endblock %}

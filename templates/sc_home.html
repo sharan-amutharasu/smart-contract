@@ -1,0 +1,41 @@
+{% extends "sc_base.html" %}
+
+{% block title %}
+<title>Home</title>
+{% endblock %}
+
+{% block script %}
+
+
+{% endblock %}
+
+{% block content %}
+ 
+{% load staticfiles %}
+	<div id = "base">
+	<div id = "options">
+	<ul class = "opt">
+		<h2> {{user}} </h2>
+		<li><a href="{% url 'sc_create_contract' %}">Create Contract</a></li>
+		<li><a href="{% url 'sc_confirm_transaction' %}">Confirm Transaction</a></li>
+		<li>Open Contracts: </li>
+			{% if open_contracts %}
+			<ul class = "open_contracts">
+
+			  {% for contract in open_contracts %}
+			  <li>
+				<a href="{% url 'contract' pk=contract.f_trans_id %}">Contract ID: {{ contract.f_trans_id }}</a> 
+			  </li>
+			  {% endfor %}
+
+			</ul>
+			{% else %}
+			  <p>No open contracts for approval</p>
+			</ul>
+			{% endif %} 
+	</div>
+    <div id="form">
+    </div>
+	</div>
+ 
+{% endblock %}

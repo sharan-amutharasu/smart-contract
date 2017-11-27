@@ -1,0 +1,192 @@
+{% extends "sc_base.html" %}
+
+{% block title %}
+<title>Create Contract</title>
+{% endblock %}
+
+{% block script %}
+	
+	function page_load() {
+	{% autoescape off %}
+		$("#id_f_ft_quantity_unit").empty();
+		$("#id_f_ft_quantity_unit").append('<option value="" disabled selected>Select unit</option>');
+		options = ['Units', 'Kilogram', 'Cubic meter'];
+		values = ['un', 'kg', 'cm'];
+		for (opt in options) {
+			$('#id_f_ft_quantity_unit')
+				.append($("<option></option>")
+					.attr("value", values[opt])
+					.text(options[opt]));
+		}
+		$("#id_f_pt_quantity_unit").empty();
+		$("#id_f_pt_quantity_unit").append('<option value="" disabled selected>Select unit</option>');
+		options = ['Rupee', 'Dollar', 'Euro'];
+		values = ['rp', 'dl', 'eu'];
+		for (opt in options) {
+			$('#id_f_pt_quantity_unit')
+				.append($("<option></option>")
+					.attr("value", values[opt])
+					.text(options[opt]));
+		}
+		//$("#heading").html("Changed");
+	{% endautoescape %}
+	}	
+	
+	function form_manage() {
+	{% autoescape off %}
+		var user_id = {{user_id}};
+		post("{% url 'sc_create_contract' %}", {f_user_id1:user_id, f_trans_id:0});
+	{% endautoescape %}
+	}
+	
+	function post(path, params, method) {
+		method = method || "post"; // Set method to post by default if not specified.
+
+		var form = document.getElementById("form1");
+		form.setAttribute("method", method);
+		form.setAttribute("action", path);
+
+		for(var key in params) {
+			if(params.hasOwnProperty(key)) {
+				var hiddenField = document.createElement("input");
+				hiddenField.setAttribute("type", "hidden");
+				hiddenField.setAttribute("name", key);
+				hiddenField.setAttribute("value", params[key]);
+
+				form.appendChild(hiddenField);
+			 }
+		}
+
+		document.body.appendChild(form);
+		form.submit();
+	}
+	
+	$(document).ready(function() {
+
+		$('#id_f_ft_type').change(function() {
+			type = $("#id_f_ft_type option:selected").text();
+			$("#id_f_ft_quantity_unit").empty();
+			$("#id_f_ft_quantity_unit").append('<option value="" disabled selected>Select unit</option>');
+			if(type=='Product'){
+				options = ['Units', 'Kilogram', 'Cubic meter'];
+				values = ['un', 'kg', 'cm'];
+			}else if(type=='Service'){
+				options = ['Seconds', 'Minutes', 'Hours'];
+				values = ['sc', 'mn', 'hr'];
+			}else {
+				options = ['Rupee', 'Dollar', 'Euro'];
+				values = ['rp', 'dl', 'eu'];
+			}
+			for (opt in options) {
+				$('#id_f_ft_quantity_unit')
+					.append($("<option></option>")
+						.attr("value", values[opt])
+						.text(options[opt]));
+			}
+		});
+
+		$('#id_f_pt_type').change(function() {
+			type = $("#id_f_pt_type option:selected").text();
+			$("#id_f_pt_quantity_unit").empty();
+			$("#id_f_pt_quantity_unit").append('<option value="" disabled selected>Select unit</option>');
+			if(type=='Product'){
+				options = ['Units', 'Kilogram', 'Cubic meter'];
+				values = ['un', 'kg', 'cm'];
+			}else if(type=='Service'){
+				options = ['Seconds', 'Minutes', 'Hours'];
+				values = ['sc', 'mn', 'hr'];
+			}else {
+				options = ['Rupee', 'Dollar', 'Euro'];
+				values = ['rp', 'dl', 'eu'];
+			}
+			for (opt in options) {
+				$('#id_f_pt_quantity_unit')
+					.append($("<option></option>")
+						.attr("value", values[opt])
+						.text(options[opt]));
+			}
+		});
+
+	
+	});
+	
+	window.onload=page_load;
+
+{% endblock %}
+
+{% block content %}
+ 
+{% load staticfiles %}
+	<div id = "base">
+	<div id = "options">
+	<ul class = "opt">
+		<h2> {{filler}} </h2>		
+	</ul>
+	</div>
+    <div id="form">
+    <form id = "form1" onsubmit = "return form_manage();" >
+		{% csrf_token %}
+		{{ form.non_field_errors }}
+		<div class="fieldWrapper">
+			{{ form.f_user_id2.errors }}
+			<label for="{{ form.f_user_id2.id_for_label }}">Transaction partner user ID:</label>
+			{{ form.f_user_id2 }}
+		</div>
+		<h3 id = "heading"> Transaction Part 1 - Details:</h3>
+		<div class="fieldWrapper">
+			{{ form.f_ft_type.errors }}
+			<label for="{{ form.f_ft_type.id_for_label }}">Type:</label>
+			{{ form.f_ft_type }}
+		</div>
+		<div class="fieldWrapper">
+			{{ form.f_ft_quantity_unit.errors }}
+			<label for="{{ form.f_ft_quantity_unit.id_for_label }}">Unit of measurement:</label>
+			{{ form.f_ft_quantity_unit }}
+		</div>
+		<div class="fieldWrapper">
+			{{ form.f_ft_quantity_number.errors }}
+			<label for="{{ form.f_ft_quantity_number.id_for_label }}">Quantity:</label>
+			{{ form.f_ft_quantity_number }}
+		</div>
+		<div class="fieldWrapper">
+			{{ form.f_ft_category.errors }}
+			<label for="{{ form.f_ft_category.id_for_label }}">Category:</label>
+			{{ form.f_ft_category }}
+		</div>
+		<div class="fieldWrapper">
+			{{ form.f_ft_description.errors }}
+			<label for="{{ form.f_ft_description.id_for_label }}">Description:</label>
+			{{ form.f_ft_description }}
+		</div>
+		<h3> Transaction Part 2 - Details:</h3>
+		<div class="fieldWrapper">
+			{{ form.f_pt_type.errors }}
+			<label for="{{ form.f_pt_type.id_for_label }}">Type:</label>
+			{{ form.f_pt_type }}
+		</div>
+		<div class="fieldWrapper">
+			{{ form.f_pt_quantity_unit.errors }}
+			<label for="{{ form.f_pt_quantity_unit.id_for_label }}">Unit of measurement:</label>
+			{{ form.f_pt_quantity_unit }}
+		</div>
+		<div class="fieldWrapper">
+			{{ form.f_pt_quantity_number.errors }}
+			<label for="{{ form.f_pt_quantity_number.id_for_label }}">Quantity:</label>
+			{{ form.f_pt_quantity_number }}
+		</div>
+		<div class="fieldWrapper">
+			{{ form.f_pt_category.errors }}
+			<label for="{{ form.f_pt_category.id_for_label }}">Category:</label>
+			{{ form.f_pt_category }}
+		</div>
+		<div class="fieldWrapper">
+			{{ form.f_pt_description.errors }}
+			<label for="{{ form.f_pt_description.id_for_label }}">Description:</label>
+			{{ form.f_pt_description }}
+		</div>
+        <button type="submit">Create Contract</button>
+    </form>
+    </div>
+	</div>
+ 
+{% endblock %}
