@@ -13,7 +13,7 @@ from django.http import HttpResponse
 from .forms import TransactionForm
 from .blockchain.cipher_class import AESCipher
 from .blockchain.contract import contract_to_dict
-from .blockchain.encryption import hash_it, check_password
+from .blockchain.encryption import hash_it, check_password, add_to_blockchain, get_contract_status, confirm_contract
 from django.db.models import Q
 from django.shortcuts import redirect, reverse, get_object_or_404
 import pickle
@@ -31,9 +31,7 @@ def sc_home(request):
 		user_object.save()
 	contracts_c = mt_transactions.objects.filter(Q(f_user_id1=user_object.f_user_id) | Q(f_user_id2=user_object.f_user_id), f_status = 'c').values()
 	contracts_a = mt_transactions.objects.filter(Q(f_user_id1=user_object.f_user_id) | Q(f_user_id2=user_object.f_user_id), f_status = 'a').values()
-	contracts_h = mt_transactions.objects.filter(Q(f_user_id1=user_object.f_user_id) | Q(f_user_id2=user_object.f_user_id), f_status = 'h').values()
-	contracts_x = mt_transactions.objects.filter(Q(f_user_id1=user_object.f_user_id) | Q(f_user_id2=user_object.f_user_id), f_status = 'x').values()
-	return render(request,'sc_home.html', {'user':user, 'user_id':user_object.f_user_id, 'contracts_c':contracts_c, 'contracts_a':contracts_a, 'contracts_h':contracts_h, 'contracts_x':contracts_x})
+	return render(request,'sc_home.html', {'user':user, 'user_id':user_object.f_user_id, 'contracts_c':contracts_c, 'contracts_a':contracts_a})
 	#"""
 
 #add_to_end: 2017-11-22 11:04:20.581548
@@ -123,7 +121,11 @@ def sc_contract(request):
 			unit_mapping = {'sc':"Seconds", 'mn':"Minutes", 'hr':"Hours", 'un':"Units", 'kg':"Kilograms", 'cm':"Cubic Meter", 'rp':"Rupees", 'dl':"Dollars", 'eu':"Euros"}
 			ft_unit_type = unit_mapping[contract.f_ft_quantity_unit]
 			pt_unit_type = unit_mapping[contract.f_pt_quantity_unit]
-			return render(request,'sc_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'contract':contract, 'ft_type':ft_type, 'pt_type':pt_type, 'ft_unit_type':ft_unit_type, 'pt_unit_type':pt_unit_type})
+			if contract.f_status == 'a':
+				contract_status = get_contract_status(contract.f_trans_id)
+			else:
+				contract_status = 'c'
+			return render(request,'sc_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'contract':contract, 'ft_type':ft_type, 'pt_type':pt_type, 'ft_unit_type':ft_unit_type, 'pt_unit_type':pt_unit_type, 'contract_status':contract_status})
 		else:
 			return render(request,'sc_access_contract.html', {'user':user, 'filler':'Invalid public access key'})
 
@@ -156,7 +158,57 @@ def sc_approve_contract(request):
 				contract.f_hash_u1 = up_hash
 			contract.f_status = 'a'
 			contract.save()
-			#add_to_blockchain(contract, pak)
+			contract_dict = contract_to_dict(contract)
+			add_to_blockchain(pak, contract_dict)
 			return render(request,'sc_contract_approved.html', {'user':user, 'user_id':user_object.f_user_id, 'contract_id':contract.f_trans_id})
 		else:
 			return render(request,'sc_approve_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Invalid public access key'})
+
+			
+def sc_confirm_contract(request):
+	user = str(request.user).strip()	
+	try:
+		user_object = mt_users.objects.get(f_user_name=user)
+	except ObjectDoesNotExist:
+		max_user_id = mt_users.objects.all().aggregate(Max('f_user_id'))['f_user_id__max']
+		user_object = mt_users(f_user_id=max_user_id + 1, f_user_name=user)
+		user_object.save()
+	if request.method == 'GET':
+		return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':''})
+	elif request.method == 'POST':		
+		
+		post_data = request.POST.copy()
+		try:
+			contract = mt_transactions.objects.get(f_trans_id = post_data['contract_id'])
+		except ObjectDoesNotExist:
+			return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Invalid contract ID'})
+		if contract.f_status == 'c':
+			return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Contract not accepted by all parties yet.'})
+		
+		pak = post_data['pk']
+		up = post_data['up']
+		if check_password(contract.f_hash_pk, pak):
+			contract_status = get_contract_status(contract.f_trans_id)
+			if check_password(contract.f_hash_u1, up) and contract.f_user_id1 == user_object.f_user_id:
+				if contract_status == '1' or contract_status == 'x':
+					return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Your transaction part has already been confirmed'})
+				elif contract_status == '2' or contract_status == 'a':
+					confirm_contract(contract.f_trans_id, pak, up)
+					return render(request,'sc_contract_confirmed.html', {'user':user, 'user_id':user_object.f_user_id, 'contract_id':contract.f_trans_id})
+				else:
+					return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Contract missing'})
+					
+			elif check_password(contract.f_hash_u2, up) and contract.f_user_id2 == user_object.f_user_id:
+				if contract_status == '2' or contract_status == 'x':
+					return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Your transaction part has already been confirmed'})
+				elif contract_status == '1' or contract_status == 'a':
+					confirm_contract(contract.f_trans_id, pak, up)
+					return render(request,'sc_contract_confirmed.html', {'user':user, 'user_id':user_object.f_user_id, 'contract_id':contract.f_trans_id})
+				else:
+					return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Contract missing'})
+			else:
+				return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Invalid contract password'})
+		else:
+			return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Invalid public access key'})
+			
+			

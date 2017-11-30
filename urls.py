@@ -33,3 +33,11 @@ urlpatterns += [
 ]
 
 #add_to_end: 2017-11-30 09:07:45.712553
+
+#add_to_end: 2017-11-30 20:59:01.028029
+
+urlpatterns += [
+	url(r'^confirm_contract/', views.sc_confirm_contract, name='sc_confirm_contract'),
+]
+
+#add_to_end: 2017-11-30 20:59:01.028063
