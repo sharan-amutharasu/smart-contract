@@ -1,0 +1,95 @@
+{% extends "sc_base.html" %}
+
+{% block title %}
+<title>Contract</title>
+{% endblock %}
+
+{% block script %}
+	
+	function page_load() {
+	{% autoescape off %}
+	{% endautoescape %}
+	}	
+	
+	function form_manage() {
+	{% autoescape off %}
+		var user_id = {{user_id}};
+	{% endautoescape %}
+	}
+	
+	function post(path, params, method) {
+		method = method || "post"; // Set method to post by default if not specified.
+
+		var form = document.getElementById("form1");
+		form.setAttribute("method", method);
+		form.setAttribute("action", path);
+
+		for(var key in params) {
+			if(params.hasOwnProperty(key)) {
+				var hiddenField = document.createElement("input");
+				hiddenField.setAttribute("type", "hidden");
+				hiddenField.setAttribute("name", key);
+				hiddenField.setAttribute("value", params[key]);
+
+				form.appendChild(hiddenField);
+			 }
+		}
+
+		document.body.appendChild(form);
+		form.submit();
+	}
+	
+	//window.onload=page_load;
+
+{% endblock %}
+
+{% block content %}
+ 
+{% load staticfiles %}
+	<div id = "base">
+	<div id = "details">
+	<h2> Contract ID: {{contract.f_trans_id}} </h2>
+	<h3> Transaction Part-1 details: </h3>
+	<ul>
+		<li>Transaction-part performer user ID: {{contract.f_user_id1}}</li>
+		<li>Type: {{ft_type}}</li>
+		<li>Quantity: {{contract.f_ft_quantity_number}} ({{ft_unit_type}})</li>
+		<li>Category: {{contract.f_ft_category}}</li>
+		<li>Description: {{contract.f_ft_description}}</li>		
+	</ul>
+	<h3> Transaction Part-2 details: </h3>
+	<ul>
+		<li>Transaction-part performer user ID: {{contract.f_user_id2}}</li>
+		<li>Type: {{pt_type}}</li>
+		<li>Quantity: {{contract.f_pt_quantity_number}} ({{pt_unit_type}})</li>
+		<li>Category: {{contract.f_pt_category}}</li>
+		<li>Description: {{contract.f_pt_description}}</li>
+	</ul>
+	</div>
+	<div id = "action">
+	{% if contract.f_status == 'c' %}
+		{% if contract.f_creator == user_id %}
+			<h3> Waiting for transaction partner approval  </h3>
+		{% else %}
+			<a href = "{% url 'sc_approve_contract' %}"> Approve Contract </a>
+		{% endif %}
+	{% endif %}
+	{% if contract.f_status == 'a' %}
+		<a> Confirm that your part of the transaction is done </a>
+	{% endif %}
+	{% if contract.f_status == 'h' %}
+		{% if contract.f_first_half_user_id == user_id %}
+			<h3> Waiting for partner to confirm their part of the transaction </h3>
+		{% else %}
+			<a> Confirm that your part of the transaction is done </a>
+		{% endif %}
+	{% endif %}
+	{% if contract.f_status == 'x' %}
+		<h3> Contract is complete. Both parties have confirmed the transaction. </h3>
+	{% endif %}
+	</div>
+	<div id="form">
+	</div>
+	</div>
+ 
+{% endblock %}
