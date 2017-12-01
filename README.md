@@ -2,7 +2,7 @@
 
 This project is blockchain implementation for educational purposes. It uses a blockchain to store the details and status of contract made between users.
 
-##Features
+## Features
 Blockless: Edits to blockchain are usually appended in 'blocks'. But the nature of this approach has a lot of disadvantages. Future blockchains will evolve to not require block additions.
 	This project tests this feature
 
@@ -12,7 +12,7 @@ Centralised manipulation and distribution: Blockchain's security approach is 'sa
 	Blockchain data is simply offered as a downloadable file.
 	
 	
-##Workflow
+## Workflow
 
 1. User1 and user2 want to enter into a contract
 2. User1 or user2 creates the contract with all its details(product/service, quantity, agreed cost)
@@ -26,19 +26,19 @@ Centralised manipulation and distribution: Blockchain's security approach is 'sa
 
 The public access keys and both contract passwords are hashed and added to the blockchain during contract approval. Therefore any change is made only after the input passwords are compared against the blockchain ones.
 
-##To be added
+## To be added
 
 Update option: A python script that directly updates the local blockchain data
 
 Verification: For more security, a verification option that checks n copies(during updating of their local copies) to verify the contract status.
 
-## Authors
+### Authors
 
 * **Sharan Amutharasu** - *Initial work* - (https://github.com/sharan-amutharasu)
 
 See also the list of [contributors](https://github.com/sharan-amutharasu/smart-contract/contributors) who participated in this project.
 
-## License
+### License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
