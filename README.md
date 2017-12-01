@@ -1,6 +1,7 @@
 # SMART CONTRACT
 
 This project is blockchain implementation for educational purposes. It uses a blockchain to store the details and status of contract made between users.
+The front end can be accessed at http://54.214.220.132/app_sc/ (for credentials, email me at sharan.amutharasu@gmail.com)
 
 ## Features
 Blockless: Edits to blockchain are usually appended in 'blocks'. But the nature of this approach has a lot of disadvantages. Future blockchains will evolve to not require block additions.
@@ -32,6 +33,10 @@ Update option: A python script that directly updates the local blockchain data
 
 Verification: For more security, a verification option that checks n copies(during updating of their local copies) to verify the contract status.
 
+## Disclaimer
+
+This project is strictly educational. There are several security loop holes and effeciency concerns that have to be addressed before commercial application. The contributors are not responsible for any such actions or their consequences.
+
 ### Authors
 
 * **Sharan Amutharasu** - *Initial work* - (https://github.com/sharan-amutharasu)
@@ -40,5 +45,5 @@ See also the list of [contributors](https://github.com/sharan-amutharasu/smart-c
 
 ### License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details. No use/duplication is allowed without acknowledgement.
 
