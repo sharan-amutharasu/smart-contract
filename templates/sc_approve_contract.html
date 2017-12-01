@@ -1,0 +1,83 @@
+{% extends "sc_base.html" %}
+
+{% block title %}
+<title>Approve Contract</title>
+{% endblock %}
+
+{% block script %}
+	
+	function page_load() {
+	{% autoescape off %}
+		var up = make_id();
+		$("#up").html(up);
+	{% endautoescape %}
+	}	
+	
+	function form_send() {
+	{% autoescape off %}
+		var up = $("#up").html();
+		post("{% url 'sc_approve_contract' %}", {up:up});
+		
+	{% endautoescape %}
+	}
+	
+	function post(path, params, method) {
+		method = method || "post"; // Set method to post by default if not specified.
+
+		var form = document.getElementById("form1");
+		form.setAttribute("method", method);
+		form.setAttribute("action", path);
+
+		for(var key in params) {
+			if(params.hasOwnProperty(key)) {
+				var hiddenField = document.createElement("input");
+				hiddenField.setAttribute("type", "hidden");
+				hiddenField.setAttribute("name", key);
+				hiddenField.setAttribute("value", params[key]);
+
+				form.appendChild(hiddenField);
+			 }
+		}
+
+		document.body.appendChild(form);
+		form.submit();
+	};
+	
+	function make_id() {
+		var id = "";
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		for (var i = 0; i < 16; i++)
+			id += possible.charAt(Math.floor(Math.random() * possible.length));
+		return id;
+	};
+	
+
+	
+	window.onload=page_load;
+
+{% endblock %}
+
+{% block content %}
+ 
+{% load staticfiles %}
+	<div id = "base">
+	<div id = "options">
+	<h2> {{filler}} </h2>
+	</div>
+    <div id="form">
+    <form id = "form1" onsubmit = "return form_send();" >
+		{% csrf_token %}
+		Contract ID: 
+		<input type="number" name="contract_id" value=0 >
+		Public Access Key: 
+		<input type="password" name="pk">
+		<div class = "creds">
+			<p> Contract password: <b id = "up"></b></p>
+			<h4> Please remember or copy the public access key and contract password. You will not be able to access the contract without both <h4>
+		</div>
+        <button type="submit">Approve Contract</button>
+    </form>
+    </div>
+	</div>
+ 
+{% endblock %}

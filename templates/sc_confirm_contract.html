@@ -1,0 +1,70 @@
+{% extends "sc_base.html" %}
+
+{% block title %}
+<title>Confirm Contract</title>
+{% endblock %}
+
+{% block script %}
+	
+	function page_load() {
+	{% autoescape off %}
+	{% endautoescape %}
+	}	
+	
+	function form_send() {
+	{% autoescape off %}
+		post("{% url 'sc_confirm_contract' %}");
+		
+	{% endautoescape %}
+	}
+	
+	function post(path, params, method) {
+		method = method || "post"; // Set method to post by default if not specified.
+
+		var form = document.getElementById("form1");
+		form.setAttribute("method", method);
+		form.setAttribute("action", path);
+
+		for(var key in params) {
+			if(params.hasOwnProperty(key)) {
+				var hiddenField = document.createElement("input");
+				hiddenField.setAttribute("type", "hidden");
+				hiddenField.setAttribute("name", key);
+				hiddenField.setAttribute("value", params[key]);
+
+				form.appendChild(hiddenField);
+			 }
+		}
+
+		document.body.appendChild(form);
+		form.submit();
+	};
+	
+
+	
+	//window.onload=page_load;
+
+{% endblock %}
+
+{% block content %}
+ 
+{% load staticfiles %}
+	<div id = "base">
+	<div id = "options">
+	<h2> {{filler}} </h2>
+	</div>
+    <div id="form">
+    <form id = "form1" onsubmit = "return form_send();" >
+		{% csrf_token %}
+		Contract ID: 
+		<input type="number" name="contract_id" value=0 >
+		Public Access Key: 
+		<input type="password" name="pk">
+		Contract Password: 
+		<input type="password" name="up">
+        <button type="submit">Confirm Contract</button>
+    </form>
+    </div>
+	</div>
+ 
+{% endblock %}

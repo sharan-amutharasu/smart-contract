@@ -5,7 +5,23 @@
 {% endblock %}
 
 {% block script %}
+{% endblock %}
 
+{% block style %}
+
+a.download{
+    text-decoration: none;
+    color: #fff;
+    background: #50a6f6;
+    padding: 8px 10px;
+    border-radius: 3px;
+    display: block;
+    width: 140px;
+    margin: 0 auto 0 auto;
+    text-align: center;
+    z-index: 100;
+    transition: opacity .8s ease;
+}
 
 {% endblock %}
 
@@ -14,25 +30,38 @@
 {% load staticfiles %}
 	<div id = "base">
 	<div id = "options">
+	<h2> {{user}} </h2>
+	<a href="{% url 'sc_download' %}" class="download">Download Blockchain File</a>
 	<ul class = "opt">
-		<h2> {{user}} </h2>
 		<li><a href="{% url 'sc_create_contract' %}">Create Contract</a></li>
-		<li><a href="{% url 'sc_confirm_transaction' %}">Confirm Transaction</a></li>
-		<li>Open Contracts: </li>
-			{% if open_contracts %}
-			<ul class = "open_contracts">
-
-			  {% for contract in open_contracts %}
-			  <li>
-				<a href="{% url 'contract' pk=contract.f_trans_id %}">Contract ID: {{ contract.f_trans_id }}</a> 
-			  </li>
-			  {% endfor %}
-
-			</ul>
+		<li><a href="{% url 'sc_access_contract' %}">Access Contract</a></li>
+		<li>Your contracts: </li>
+		{% if contracts_c %}
+			{% if contracts_c.count > 0 or contract_a.count > 0 %}
+				<ul class = "contracts" >
+				{% if contracts_c.count > 0 %}
+					<li> Contracts waiting approval: </li>
+					<ul class = "contracts_c">
+						{% for contract in contracts_c %}
+							<li>Contract ID: {{ contract.f_trans_id }} - {% if contract.f_creator == user_id %} Awaiting partner's approval {% else %}  Awaiting your approval {% endif %} </li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+				{% if contracts_a.count > 0 %}
+					<li> Active contracts: </li>
+					<ul class = "contracts_a">
+						{% for contract in contracts_a %}
+							<li>Contract ID: {{ contract.f_trans_id }} </li>
+						{% endfor %}
+					</ul>
+				{% endif %}
 			{% else %}
-			  <p>No open contracts for approval</p>
-			</ul>
+			  <p>No contracts yet.</p>
 			{% endif %} 
+		{% else %}
+		  <p>No contracts yet</p>
+		{% endif %} 
+	</ul>
 	</div>
     <div id="form">
     </div>

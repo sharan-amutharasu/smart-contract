@@ -47,6 +47,7 @@ class mt_transactions(models.Model):
 	f_creation_time_b = models.DateTimeField(default = datetime.now)
 	f_approval_time_h = models.DateTimeField(default = datetime.now)
 	f_approval_time_x = models.DateTimeField(default = datetime.now)
+	f_creator = models.IntegerField(default = 0)
 	f_ft_type = models.CharField(choices=TRANS_TYPE_CHOICES, max_length=1, default = "x")
 	f_ft_id = models.IntegerField(default = 0)
 	f_ft_quantity_unit = models.CharField(choices=QUANTITY_UNIT_CHOICES, max_length=2, default = "xx")
@@ -59,6 +60,7 @@ class mt_transactions(models.Model):
 	f_pt_quantity_number = models.IntegerField(default = 0)
 	f_pt_category = models.CharField(max_length=100, default = "category")
 	f_pt_description = models.CharField(max_length=1000, default = "description")
+	f_first_half_user_id = models.IntegerField(default = 0)
 	f_hash_pk = models.CharField(max_length=1000, default = "pk")
 	f_hash_u1 = models.CharField(max_length=1000, default = "u1")
 	f_hash_u2 = models.CharField(max_length=1000, default = "u2")
@@ -149,3 +151,24 @@ class mt_access(models.Model):
 
 	def __str__(self):
 		return str(self.f_mt_name)
+		
+
+#model:mt_cred_request		
+class mt_cred_request(models.Model):
+
+#mt_cred_request.fields
+	f_name = models.CharField(max_length=100, default = "name")
+	f_email = models.EmailField(max_length=100,blank=True)
+	
+#mt_cred_request.end_fields
+	
+#mt_cred_request.meta
+	class Meta: 
+		ordering = ['f_name']
+
+#mt_cred_request.methods
+	def get_absolute_url(self):
+		 return reverse('mt_cred_request', args=[str(self.id)])
+
+	def __str__(self):
+		return str(self.f_name)

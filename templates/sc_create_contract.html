@@ -28,14 +28,21 @@
 					.attr("value", values[opt])
 					.text(options[opt]));
 		}
-		//$("#heading").html("Changed");
+		var pk = make_id();
+		var up = make_id();
+		$("#pk").html(pk);
+		$("#up").html(up);
+		//var pkc = $("#pk").html();
+		//$("#heading").html(pkc);
 	{% endautoescape %}
 	}	
 	
 	function form_manage() {
 	{% autoescape off %}
 		var user_id = {{user_id}};
-		post("{% url 'sc_create_contract' %}", {f_user_id1:user_id, f_trans_id:0});
+		var pk = $("#pk").html();
+		var up = $("#up").html();
+		post("{% url 'sc_create_contract' %}", {f_trans_id:0, f_creator:user_id, f_hash_pk:pk, f_hash_u1:up, f_hash_u2:'u2'});
 	{% endautoescape %}
 	}
 	
@@ -110,6 +117,15 @@
 	
 	});
 	
+	function make_id() {
+		var id = "";
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		for (var i = 0; i < 16; i++)
+			id += possible.charAt(Math.floor(Math.random() * possible.length));
+		return id;
+	};
+	
+	
 	window.onload=page_load;
 
 {% endblock %}
@@ -127,12 +143,12 @@
     <form id = "form1" onsubmit = "return form_manage();" >
 		{% csrf_token %}
 		{{ form.non_field_errors }}
-		<div class="fieldWrapper">
-			{{ form.f_user_id2.errors }}
-			<label for="{{ form.f_user_id2.id_for_label }}">Transaction partner user ID:</label>
-			{{ form.f_user_id2 }}
-		</div>
 		<h3 id = "heading"> Transaction Part 1 - Details:</h3>
+		<div class="fieldWrapper">
+			{{ form.f_user_id1.errors }}
+			<label for="{{ form.f_user_id1.id_for_label }}">Transaction-part performer user ID:</label>
+			{{ form.f_user_id1 }}
+		</div>
 		<div class="fieldWrapper">
 			{{ form.f_ft_type.errors }}
 			<label for="{{ form.f_ft_type.id_for_label }}">Type:</label>
@@ -160,6 +176,11 @@
 		</div>
 		<h3> Transaction Part 2 - Details:</h3>
 		<div class="fieldWrapper">
+			{{ form.f_user_id2.errors }}
+			<label for="{{ form.f_user_id2.id_for_label }}">Transaction-part performer user ID:</label>
+			{{ form.f_user_id2 }}
+		</div>
+		<div class="fieldWrapper">
 			{{ form.f_pt_type.errors }}
 			<label for="{{ form.f_pt_type.id_for_label }}">Type:</label>
 			{{ form.f_pt_type }}
@@ -183,6 +204,27 @@
 			{{ form.f_pt_description.errors }}
 			<label for="{{ form.f_pt_description.id_for_label }}">Description:</label>
 			{{ form.f_pt_description }}
+		</div>
+		<div class = "creds">
+			<p> Public Access Key: <b id = "pk"></b></p>
+			<p> Contract password: <b id = "up"></b></p>
+			<h4> Please remember or copy the public access key and contract password. You will not be able to access the contract without both <h4>
+		</div>
+		<div>
+		{% if form.errors %}
+			{% for field in form %}
+				{% for error in field.errors %}
+					<div class="alert alert-danger">
+						<strong>{{field.name}}: {{ error|escape }}</strong>
+					</div>
+				{% endfor %}
+			{% endfor %}
+			{% for error in form.non_field_errors %}
+				<div class="alert alert-danger">
+					<strong>{{ error|escape }}</strong>
+				</div>
+			{% endfor %}
+		{% endif %}
 		</div>
         <button type="submit">Create Contract</button>
     </form>

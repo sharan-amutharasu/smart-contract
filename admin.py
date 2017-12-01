@@ -36,3 +36,10 @@ from .models import mt_access
 
 admin.site.register(mt_access)
 #add_to_end: 2017-11-22 11:26:20.405489
+
+#add_to_end: 2017-12-01 10:56:30.741821
+
+from .models import mt_cred_request
+
+admin.site.register(mt_cred_request)
+#add_to_end: 2017-12-01 10:56:30.741868
