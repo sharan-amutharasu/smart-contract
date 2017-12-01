@@ -7,7 +7,7 @@ from django.db import models
 from django.views import generic
 import datetime
 from django.db.models import Max
-from .models import mt_users, mt_transactions
+from .models import mt_users, mt_transactions, mt_cred_request
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from .forms import TransactionForm
@@ -17,6 +17,10 @@ from .blockchain.encryption import hash_it, check_password, add_to_blockchain, g
 from django.db.models import Q
 from django.shortcuts import redirect, reverse, get_object_or_404
 import pickle
+import os
+from django.conf import settings
+import smtplib
+from email.message import EmailMessage
 
 def sc_home(request):
 	user = str(request.user).strip()
@@ -31,7 +35,8 @@ def sc_home(request):
 		user_object.save()
 	contracts_c = mt_transactions.objects.filter(Q(f_user_id1=user_object.f_user_id) | Q(f_user_id2=user_object.f_user_id), f_status = 'c').values()
 	contracts_a = mt_transactions.objects.filter(Q(f_user_id1=user_object.f_user_id) | Q(f_user_id2=user_object.f_user_id), f_status = 'a').values()
-	return render(request,'sc_home.html', {'user':user, 'user_id':user_object.f_user_id, 'contracts_c':contracts_c, 'contracts_a':contracts_a})
+	download_url = os.path.join(os.getcwd(),'app_sc/blockchain/chain.pkl')
+	return render(request,'sc_home.html', {'user':user, 'user_id':user_object.f_user_id, 'contracts_c':contracts_c, 'contracts_a':contracts_a, 'download_url':download_url})
 	#"""
 
 #add_to_end: 2017-11-22 11:04:20.581548
@@ -211,4 +216,23 @@ def sc_confirm_contract(request):
 		else:
 			return render(request,'sc_confirm_contract.html', {'user':user, 'user_id':user_object.f_user_id, 'filler':'Invalid public access key'})
 			
+
 			
+def sc_download(request):
+    file_path = os.path.join(settings.CHAIN_LOCATION, 'chain.pkl')
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.python")
+            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+            return response
+    raise Http404
+	
+	
+def request_credentials(request):
+	if request.method == 'POST':
+		post_data = request.POST.copy()
+		req = mt_cred_request(f_name = post_data['name'], f_email = post_data['email_id'])
+		req.save()
+		return render(request, 'request_sent.html')
+	else:
+		return render(request,'request_credentials.html')

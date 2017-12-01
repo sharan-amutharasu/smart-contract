@@ -1,6 +1,8 @@
 
 #add_to_end: 2017-11-22 11:04:20.580039
 from django.conf.urls import url
+from django.conf import settings
+from django.views.static import serve
 
 from . import views
 urlpatterns = [
@@ -38,6 +40,8 @@ urlpatterns += [
 
 urlpatterns += [
 	url(r'^confirm_contract/', views.sc_confirm_contract, name='sc_confirm_contract'),
+	url(r'^download/', views.sc_download, name='sc_download'),
+	url(r'^request_credentials/', views.request_credentials, name='request_credentials'),
 ]
 
 #add_to_end: 2017-11-30 20:59:01.028063

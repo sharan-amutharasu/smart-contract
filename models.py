@@ -151,3 +151,24 @@ class mt_access(models.Model):
 
 	def __str__(self):
 		return str(self.f_mt_name)
+		
+
+#model:mt_cred_request		
+class mt_cred_request(models.Model):
+
+#mt_cred_request.fields
+	f_name = models.CharField(max_length=100, default = "name")
+	f_email = models.EmailField(max_length=100,blank=True)
+	
+#mt_cred_request.end_fields
+	
+#mt_cred_request.meta
+	class Meta: 
+		ordering = ['f_name']
+
+#mt_cred_request.methods
+	def get_absolute_url(self):
+		 return reverse('mt_cred_request', args=[str(self.id)])
+
+	def __str__(self):
+		return str(self.f_name)
